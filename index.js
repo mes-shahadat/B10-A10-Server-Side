@@ -17,10 +17,9 @@ async function run() {
     try {
 
         // http://localhost:3000/reviews?sort=rating&order=desc&genre=RPG
+        const reviews = client.db("game_review").collection("reviews"); 
 
         app.get('/reviews', async (req, res) => {
-            
-            const reviews = client.db("game_review").collection("reviews"); 
             
             const label = req.query.sort || "title";
             const order = req.query.order === "asc" ? 1 : -1 || 1;
@@ -44,9 +43,15 @@ async function run() {
 
         })
 
-        app.post('/reviews', async (req, res) => {
+        app.get('/genres', async (req, res) => {
             
-            const reviews = client.db("game_review").collection("reviews"); 
+            const result = await reviews.distinct("genre");
+
+            res.json(result);
+
+        })
+
+        app.post('/addReview', async (req, res) => {
             
             const result = await reviews.insertOne(req.body);
             
