@@ -16,7 +16,34 @@ const client = new MongoClient(uri);
 async function run() {
     try {
 
-        
+        // http://localhost:3000/reviews?sort=rating&order=desc&genre=RPG
+
+        app.get('/reviews', async (req, res) => {
+            
+            const reviews = client.db("game_review").collection("reviews"); 
+            
+            const label = req.query.sort || "title";
+            const order = req.query.order === "asc" ? 1 : -1 || 1;
+            const genre = req.query.genre || null;
+
+            const query = { genre: genre || { $exists: true } };
+            const options = {
+              sort: { [label]: order },
+              projection: { game_cover: 1, genre: 1, publishing_year: 1, title: 1 },
+            };
+            
+            const cursor = reviews.find(query, options);
+
+            const result = await cursor.toArray();
+            
+            if (result.length === 0) {
+                res.send("no data found");
+            } else {
+                res.json(result);
+            }
+
+        })
+
         app.post('/reviews', async (req, res) => {
             
             const reviews = client.db("game_review").collection("reviews"); 
@@ -26,6 +53,7 @@ async function run() {
             res.json(result);
 
         })
+
     } finally {
         // Close the MongoDB client connection
         //    await client.close();
