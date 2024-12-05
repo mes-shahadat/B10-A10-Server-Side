@@ -28,7 +28,7 @@ async function run() {
             const query = { genre: genre || { $exists: true } };
             const options = {
                 sort: { [label]: order },
-                projection: { game_cover: 1, genre: 1, publishing_year: 1, title: 1 },
+                projection: { game_cover: 1, genre: 1, platforms: 1,  publishing_year: 1, title: 1 },
             };
 
             const cursor = reviews.find(query, options);
@@ -36,7 +36,7 @@ async function run() {
             const result = await cursor.toArray();
 
             if (result.length === 0) {
-                res.send("no data found");
+                res.json([]);
             } else {
                 res.json(result);
             }
@@ -54,12 +54,31 @@ async function run() {
         app.get('/review/:id', async (req, res) => {
 
             try {
-                
+
                 const query = { _id: new ObjectId(req.params.id) };
                 const result = await reviews.findOne(query);
                 res.json(result);
 
             } catch (err) { res.json(null) }
+
+        })
+
+        app.get('/myReviews/:email', async (req, res) => {
+
+            const query = { user_email: req.params.email };
+            const options = {
+                projection: { game_cover: 1, genre: 1, platforms: 1, review_description: 1, rating: 1, title: 1 },
+            };
+
+            const cursor = reviews.find(query, options);
+
+            const result = await cursor.toArray();
+
+            if (result.length === 0) {
+                res.json([]);
+            } else {
+                res.json(result);
+            }
 
         })
 
