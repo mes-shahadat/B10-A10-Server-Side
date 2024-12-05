@@ -28,7 +28,7 @@ async function run() {
             const query = { genre: genre || { $exists: true } };
             const options = {
                 sort: { [label]: order },
-                projection: { game_cover: 1, genre: 1, platforms: 1,  publishing_year: 1, title: 1 },
+                projection: { game_cover: 1, genre: 1, platforms: 1, publishing_year: 1, title: 1 },
             };
 
             const cursor = reviews.find(query, options);
@@ -89,6 +89,37 @@ async function run() {
                 const query = { _id: new ObjectId(req.params.id) };
                 const result = await reviews.findOne(query);
                 res.json(result);
+
+            } catch (err) { res.json(null) }
+
+        })
+
+        app.put('/updateReview/:id', async (req, res) => {
+
+            let reviewer = req.body.editor_email;
+            delete req.body.editor_email;
+
+            try {
+
+                const filter = { _id: new ObjectId(req.params.id) };
+
+                const doc = await reviews.findOne(filter, {
+                    projection: { user_email: 1 }
+                });
+
+                if (doc.user_email === reviewer) {
+
+                    const updateDoc = {
+                        $set: {
+                            ...req.body
+                        },
+                    };
+
+                    const result = await reviews.updateOne(filter, updateDoc);
+
+                    res.json(result);
+
+                } else { res.json({"error": "this is not your review post"}) }
 
             } catch (err) { res.json(null) }
 
