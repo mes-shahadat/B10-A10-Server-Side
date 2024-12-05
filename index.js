@@ -133,12 +133,46 @@ async function run() {
 
         })
 
+        app.post('/myWatchlist', async (req, res) => {
+
+            const reviews = client.db("game_review").collection("myWatchlist");
+
+            try {
+
+                const filter = { user_email: req.body.user_email };
+
+                const doc = await reviews.findOne(filter, {
+                    projection: { user_email: 1 }
+                });
+
+                if (doc?.user_email) {
+
+                    const updateDoc = {
+                        $addToSet: {
+                            "favorites" : req.body.favorites[0]
+                        }
+                    }
+
+                    const result = await reviews.updateOne(filter, updateDoc);
+
+                    res.json(result);
+
+                } else {
+                    
+                    const result = await reviews.insertOne(req.body);
+                    res.json(result);
+                }
+
+            } catch (err) { res.json(null) }
+
+        })
+
 
         app.delete('/review/:id', async (req, res) => {
 
             let reviewer = req.body.editor_email;
             delete req.body.editor_email;
-            
+
             try {
 
                 const query = { _id: new ObjectId(req.params.id) };
@@ -147,14 +181,14 @@ async function run() {
                     projection: { user_email: 1 }
                 });
 
-                if (!reviewer) { return res.json({"error": "editor email missing"}) }
+                if (!reviewer) { return res.json({ "error": "editor email missing" }) }
 
                 if (doc.user_email === reviewer) {
 
                     const result = await reviews.deleteOne(query);
-                    
+
                     res.json(result);
-                    
+
                 } else { res.json({ "error": "this is not your post" }) }
 
             } catch (err) { res.json(null) }
