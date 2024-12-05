@@ -94,6 +94,35 @@ async function run() {
 
         })
 
+        app.get('/myWatchlist', async (req, res) => {
+
+            const reviews = client.db("game_review").collection("myWatchlist");
+
+            try {
+
+                const pipeline = [
+                    { $match: { user_email: req.body.user_email } },
+                    {
+                        $lookup: {
+                            from: "reviews",
+                            localField: "favorites.post_id",
+                            foreignField: "_id",
+                            as: "doc"
+                        }
+                    },
+                    { $unwind: "$doc" }, 
+                    { $replaceRoot: { newRoot: "$doc" } } 
+                ];
+
+
+                const aggregationResult = reviews.aggregate(pipeline);
+                const result = await aggregationResult.toArray();
+                res.json(result);
+
+            } catch (err) { res.json({ "null": null }) }
+
+        })
+
         app.put('/updateReview/:id', async (req, res) => {
 
             let reviewer = req.body.editor_email;
@@ -135,6 +164,8 @@ async function run() {
 
         app.post('/myWatchlist', async (req, res) => {
 
+            req.body.favorites[0].post_id = new ObjectId(req.body.favorites[0].post_id);
+
             const reviews = client.db("game_review").collection("myWatchlist");
 
             try {
@@ -149,7 +180,7 @@ async function run() {
 
                     const updateDoc = {
                         $addToSet: {
-                            "favorites" : req.body.favorites[0]
+                            "favorites": req.body.favorites[0]
                         }
                     }
 
@@ -158,7 +189,7 @@ async function run() {
                     res.json(result);
 
                 } else {
-                    
+
                     const result = await reviews.insertOne(req.body);
                     res.json(result);
                 }
