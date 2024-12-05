@@ -119,7 +119,7 @@ async function run() {
 
                     res.json(result);
 
-                } else { res.json({"error": "this is not your review post"}) }
+                } else { res.json({ "error": "this is not your post" }) }
 
             } catch (err) { res.json(null) }
 
@@ -130,6 +130,34 @@ async function run() {
             const result = await reviews.insertOne(req.body);
 
             res.json(result);
+
+        })
+
+
+        app.delete('/review/:id', async (req, res) => {
+
+            let reviewer = req.body.editor_email;
+            delete req.body.editor_email;
+            
+            try {
+
+                const query = { _id: new ObjectId(req.params.id) };
+
+                const doc = await reviews.findOne(query, {
+                    projection: { user_email: 1 }
+                });
+
+                if (!reviewer) { return res.json({"error": "editor email missing"}) }
+
+                if (doc.user_email === reviewer) {
+
+                    const result = await reviews.deleteOne(query);
+                    
+                    res.json(result);
+                    
+                } else { res.json({ "error": "this is not your post" }) }
+
+            } catch (err) { res.json(null) }
 
         })
 
