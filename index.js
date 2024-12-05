@@ -82,6 +82,18 @@ async function run() {
 
         })
 
+        app.get('/updateReview/:id', async (req, res) => {
+
+            try {
+
+                const query = { _id: new ObjectId(req.params.id) };
+                const result = await reviews.findOne(query);
+                res.json(result);
+
+            } catch (err) { res.json(null) }
+
+        })
+
         app.post('/addReview', async (req, res) => {
 
             const result = await reviews.insertOne(req.body);
