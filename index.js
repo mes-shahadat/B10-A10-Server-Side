@@ -110,8 +110,8 @@ async function run() {
                             as: "doc"
                         }
                     },
-                    { $unwind: "$doc" }, 
-                    { $replaceRoot: { newRoot: "$doc" } } 
+                    { $unwind: "$doc" },
+                    { $replaceRoot: { newRoot: "$doc" } }
                 ];
 
 
@@ -226,8 +226,34 @@ async function run() {
 
         })
 
-    } finally {
+        app.delete('/myWatchlist/:id', async (req, res) => {
+
+            req.params.id = new ObjectId(req.params.id);
+            let reviewer = req.body.editor_email;
+            delete req.body.editor_email;
+
+
+            const reviews = client.db("game_review").collection("myWatchlist");
+
+
+            try {
+
+                const query = { user_email: reviewer };
+
+                if (!reviewer) { return res.json({ "error": "editor email missing" }) }
+
+                const result = await reviews.updateOne( query, { $pull: { favorites: { post_id: req.params.id } } } )
+
+                res.json(result);
+
+            } catch (err) { res.json(null) }
+
+        })
+
+    } finally { 
+        
         console.log("finally");
+        // await client.close();
     }
 }
 run().catch(console.dir);
