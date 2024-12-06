@@ -51,6 +51,22 @@ async function run() {
 
         })
 
+        app.get('/banners', async (req, res) => {
+
+            const reviews = client.db("game_review").collection("bannerSlides");
+
+            const cursor = reviews.find();
+
+            const result = await cursor.toArray();
+
+            if (result.length === 0) {
+                res.json([]);
+            } else {
+                res.json(result);
+            }
+
+        })
+
         app.get('/review/:id', async (req, res) => {
 
             try {
@@ -63,7 +79,7 @@ async function run() {
 
         })
 
-        app.get('/myReviews/:email', async (req, res) => {
+        app.get('/my-reviews/:email', async (req, res) => {
 
             const query = { user_email: req.params.email };
             const options = {
@@ -82,7 +98,7 @@ async function run() {
 
         })
 
-        app.get('/updateReview/:id', async (req, res) => {
+        app.get('/update-review/:id', async (req, res) => {
 
             try {
 
@@ -94,7 +110,7 @@ async function run() {
 
         })
 
-        app.get('/myWatchlist', async (req, res) => {
+        app.get('/my-watchlist', async (req, res) => {
 
             const reviews = client.db("game_review").collection("myWatchlist");
 
@@ -123,7 +139,7 @@ async function run() {
 
         })
 
-        app.put('/updateReview/:id', async (req, res) => {
+        app.put('/update-review/:id', async (req, res) => {
 
             let reviewer = req.body.editor_email;
             delete req.body.editor_email;
@@ -154,7 +170,9 @@ async function run() {
 
         })
 
-        app.post('/addReview', async (req, res) => {
+        app.post('/add-banner', async (req, res) => {
+
+            const reviews = client.db("game_review").collection("bannerSlides");
 
             const result = await reviews.insertOne(req.body);
 
@@ -162,7 +180,15 @@ async function run() {
 
         })
 
-        app.post('/myWatchlist', async (req, res) => {
+        app.post('/add-review', async (req, res) => {
+
+            const result = await reviews.insertOne(req.body);
+
+            res.json(result);
+
+        })
+
+        app.post('/my-watchlist', async (req, res) => {
 
             req.body.favorites[0].post_id = new ObjectId(req.body.favorites[0].post_id);
 
@@ -226,7 +252,7 @@ async function run() {
 
         })
 
-        app.delete('/myWatchlist/:id', async (req, res) => {
+        app.delete('/my-watchlist/:id', async (req, res) => {
 
             req.params.id = new ObjectId(req.params.id);
             let reviewer = req.body.editor_email;
@@ -261,7 +287,7 @@ run().catch(console.dir);
 
 
 app.get("/", (req, res) => {
-    res.send("working")
+    res.send("server is running")
 })
 
 app.listen(port, () => {
