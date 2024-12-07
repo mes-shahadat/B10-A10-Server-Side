@@ -43,6 +43,75 @@ async function run() {
 
         })
 
+        app.get('/new-release', async (req, res) => {
+
+            const Maximum = parseInt(req.query.limit) || 0;
+
+            const query = { publishing_year: { $exists: true } };
+            const options = {
+                sort: { publishing_year: -1 },
+                limit: Maximum,
+                projection: { game_cover: 1, genre: 1, platforms: 1, publishing_year: 1, title: 1, rating: 1 },
+            };
+
+            const cursor = reviews.find(query, options);
+
+            const result = await cursor.toArray();
+
+            if (result.length === 0) {
+                res.json([]);
+            } else {
+                res.json(result);
+            }
+
+        })
+
+        app.get('/recommended', async (req, res) => {
+
+            const Maximum = parseInt(req.query.limit) || 0;
+
+            const query = { is_recommended: true };
+            const options = {
+                sort: { title: 1 },
+                limit: Maximum,
+                projection: { game_cover: 1, genre: 1, platforms: 1, publishing_year: 1, title: 1, rating: 1, is_recommended: 1 },
+            };
+
+            const cursor = reviews.find(query, options);
+
+            const result = await cursor.toArray();
+
+            if (result.length === 0) {
+                res.json([]);
+            } else {
+                res.json(result);
+            }
+
+        })
+
+        app.get('/highest-rated', async (req, res) => {
+
+            const Maximum = parseInt(req.query.limit) || 0;
+
+            const query = { rating: { $exists: true } };
+            const options = {
+                sort: { rating: -1 },
+                limit: Maximum,
+                projection: { game_cover: 1, genre: 1, platforms: 1, tags: 1, title: 1, rating: 1 },
+            };
+
+            const cursor = reviews.find(query, options);
+
+            const result = await cursor.toArray();
+
+            if (result.length === 0) {
+                res.json([]);
+            } else {
+                res.json(result);
+            }
+
+        })
+
         app.get('/genres', async (req, res) => {
 
             const result = await reviews.distinct("genre");
