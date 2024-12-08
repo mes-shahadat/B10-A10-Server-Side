@@ -201,7 +201,7 @@ async function run() {
 
         })
 
-        app.get('/my-watchlist', async (req, res) => {
+        app.post('/my-saved-watchlist', async (req, res) => {
 
             const reviews = client.db("game_review").collection("myWatchlist");
 
