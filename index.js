@@ -6,11 +6,11 @@ require('dotenv').config();
 
 const port = process.env.PORT || 5000;
 
-app.use(cors());
+app.use(cors({ origin: "*" }));
 app.use(express.json())
 
 
-const uri = `mongodb+srv://${process.env.DB_NAME}:${process.env.DB_PASS}@cluster0.uzgf0.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
+const uri = process.env.MONGODB_URI;
 const client = new MongoClient(uri);
 
 async function run() {
@@ -226,7 +226,7 @@ async function run() {
                 const result = await aggregationResult.toArray();
                 res.json(result);
 
-            } catch (err) { res.json({ "null": null }) }
+            } catch (err) { res.json({ "err": err.message }) }
 
         })
 
