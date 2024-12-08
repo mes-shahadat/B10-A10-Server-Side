@@ -16,7 +16,7 @@ const client = new MongoClient(uri);
 async function run() {
     try {
 
-        // http://localhost:3000/reviews?sort=rating&order=desc&genre=RPG
+        // http://localhost:3000/reviews?sort=rating&order=desc&genre=RPG&limit=10&skip=10
         const reviews = client.db("game_review").collection("reviews");
 
         app.get('/reviews', async (req, res) => {
@@ -24,11 +24,15 @@ async function run() {
             const label = req.query.sort || "title";
             const order = req.query.order === "asc" ? 1 : -1 || 1;
             const genre = req.query.genre || null;
+            const Maximum = parseInt(req.query.limit) || 0;
+            const skip = parseInt(req.query.skip) || 0;
 
             const query = { genre: genre || { $exists: true } };
             const options = {
                 sort: { [label]: order },
-                projection: { game_cover: 1, genre: 1, platforms: 1, publishing_year: 1, title: 1 },
+                skip: skip,
+                limit: Maximum,
+                projection: { game_cover: 1, genre: 1, platforms: 1, publishing_year: 1, title: 1, review_description: 1, rating: 1 },
             };
 
             const cursor = reviews.find(query, options);
@@ -40,6 +44,24 @@ async function run() {
             } else {
                 res.json(result);
             }
+
+        })
+
+        app.get('/reviews-count', async (req, res) => {
+
+            const label = req.query.sort || "title";
+            const order = req.query.order === "asc" ? 1 : -1 || 1;
+            const genre = req.query.genre || null;
+
+            const query = { genre: genre || { $exists: true } };
+            const options = {
+                sort: { [label]: order },
+                projection: { game_cover: 1, genre: 1, platforms: 1, publishing_year: 1, title: 1, review_description: 1, rating: 1 },
+            };
+
+            const result = await reviews.countDocuments(query, options);
+
+            res.json({"count" : result})
 
         })
 
@@ -360,5 +382,5 @@ app.get("/", (req, res) => {
 })
 
 app.listen(port, () => {
-    console.log(`port is running on ${port}`)
+    console.log(`server is running on http://localhost:${port}/`)
 })
