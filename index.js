@@ -16,13 +16,12 @@ const client = new MongoClient(uri);
 async function run() {
     try {
 
-        // http://localhost:3000/reviews?sort=rating&order=desc&genre=RPG&limit=10&skip=10
         const reviews = client.db("game_review").collection("reviews");
 
         app.get('/reviews', async (req, res) => {
 
-            const label = req.query.sort || "title";
-            const order = req.query.order === "asc" ? 1 : -1 || 1;
+            const label = req.query.sort == "year" ? "publishing_year" : req.query.sort || "title";
+            const order = req.query.order === "asc" ? 1 : req.query.order === "desc" ? -1 : 1 || 1;
             const genre = req.query.genre || null;
             const Maximum = parseInt(req.query.limit) || 0;
             const skip = parseInt(req.query.skip) || 0;
@@ -61,7 +60,7 @@ async function run() {
 
             const result = await reviews.countDocuments(query, options);
 
-            res.json({"count" : result})
+            res.json({ "count": result })
 
         })
 
@@ -142,6 +141,22 @@ async function run() {
 
         })
 
+        app.get('/tags', async (req, res) => {
+
+            const result = await reviews.distinct("tags");
+
+            res.json(result);
+
+        })
+
+        app.get('/platforms', async (req, res) => {
+
+            const result = await reviews.distinct("platforms");
+
+            res.json(result);
+
+        })
+
         app.get('/banners', async (req, res) => {
 
             const reviews = client.db("game_review").collection("bannerSlides");
@@ -174,7 +189,7 @@ async function run() {
 
             const query = { user_email: req.params.email };
             const options = {
-                projection: { game_cover: 1, genre: 1, platforms: 1, review_description: 1, rating: 1, title: 1 },
+                projection: { game_cover: 1, platforms: 1, publishing_year: 1, review_description: 1, rating: 1, title: 1, tags: 1 },
             };
 
             const cursor = reviews.find(query, options);
@@ -273,9 +288,14 @@ async function run() {
 
         app.post('/add-review', async (req, res) => {
 
-            const result = await reviews.insertOne(req.body);
+            if (req.body.user_email) {
+                
+                const result = await reviews.insertOne(req.body);
+                res.json(result);
 
-            res.json(result);
+            } else {
+                res.json({"error": "don't know the user"})
+            }
 
         })
 
@@ -359,7 +379,7 @@ async function run() {
 
                 if (!reviewer) { return res.json({ "error": "editor email missing" }) }
 
-                const result = await reviews.updateOne( query, { $pull: { favorites: { post_id: req.params.id } } } )
+                const result = await reviews.updateOne(query, { $pull: { favorites: { post_id: req.params.id } } })
 
                 res.json(result);
 
@@ -367,8 +387,8 @@ async function run() {
 
         })
 
-    } finally { 
-        
+    } finally {
+
         console.log("finally");
         // await client.close();
     }

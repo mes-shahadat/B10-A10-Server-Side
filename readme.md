@@ -2,33 +2,28 @@
 
 Welcome to the backend of **Chill Gamer**, the RESTful API designed to support game reviews, user authentication, and data management for the Chill Gamer front-end application. 
 
-## Live API URL
-[Chill Gamer API Documentation](http://api.example.com) *(Replace with actual API documentation URL)*
+**Live API url:** [Chill Gamer backend](https://b10-a10-server-side-nine.vercel.app/) 
 
 ## Key Features
-- **RESTful API:** Provides endpoints for user authentication, game reviews, and user watchlists.
-- **Secure Authentication:** Implements JWT (JSON Web Tokens) for user authentication.
+- **RESTful API:** Provides endpoints for game reviews, and user watchlists.
 - **MongoDB Integration:** Uses MongoDB for data storage, allowing for seamless data operations and queries.
-- **Environment Variables:** Sensitive information (like database credentials and API keys) is managed through environment variables for security.
+- **Environment Variables:** Database credentials is managed through environment variables for security.
 
 ## Table of Contents
 1. [Installation](#installation)
 2. [Usage](#usage)
 3. [API Endpoints](#api-endpoints)
 4. [Technologies Used](#technologies-used)
-5. [Challenges](#challenges)
-6. [Contribution](#contribution)
-7. [License](#license)
 
 ## Installation
 To run the backend application locally:
 1. Clone this repository:
    ```bash
-   git clone https://github.com/yourusername/chill-gamer-backend.git
+   git clone https://github.com/programming-hero-web-course2/b10-a10-server-side-mes-shahadat.git
    ```
 2. Navigate to the project directory:
    ```bash
-   cd chill-gamer-backend
+   cd b10-a10-server-side-mes-shahadat
    ```
 3. Install dependencies:
    ```bash
@@ -49,27 +44,37 @@ Make sure to replace the placeholders with your actual credentials.
    ```bash
    npm start
    ```
-2. The server will run on `http://localhost:5000` by default.
+2. The server will run on `http://localhost:3000` by default.
 
 ## API Endpoints
 Here are some key API endpoints provided by the backend:
 
 ### Reviews Management
-- **GET** `/api/reviews`: Retrieve all reviews
-- **POST** `/api/reviews`: Add a new review (protected route)
-- **GET** `/api/review/:id`: Fetch a specific review by ID
-- **PUT** `/api/review/:id`: Update a review by ID (protected route)
-- **DELETE** `/api/review/:id`: Delete a review by ID (protected route)
+- **GET** `/reviews`: Retrieve all reviews
+- **GET** `/my-reviews/:email`: Retrieve all user reviews
+- **POST** `/add-review`: Add a new review 
+- **GET** `/review/:id`: Fetch a specific review by ID
+- **PUT** `/update-review/:id`: Update a review by ID (protected route)
+- **DELETE** `/review/:id`: Delete a review by ID (protected route)
 
 ### User Watchlist
-- **GET** `/api/watchlist`: Retrieve user's watchlist (protected route)
-- **POST** `/api/watchlist`: Add a game to watchlist (protected route)
-- **DELETE** `/api/watchlist/:id`: Remove a game from watchlist (protected route)
+- **POST** `/my-saved-watchlist`: Retrieve user's watchlist (protected route)
+- **POST** `/my-watchlist`: Add a game to user's watchlist (protected route)
+- **DELETE** `/my-watchlist/:id`: Remove a game from watchlist (protected route)
+
+### Other
+- **GET** `/banners`: Get all banners
+- **GET** `/new-release`: Get new released reviews
+- **GET** `/recommended`: Get recommended reviews
+- **GET** `/highest-rated`: Get high rated reviews
+- **GET** `/reviews-count`: Get review counts using query strings
+- **GET** `/genres`: Retrieve all genres
+- **GET** `/tags`: Retrieve all tags
+- **GET** `/platforms`: Retrieve all platforms
 
 ## Technologies Used
 - **Node.js**: JavaScript runtime for building the backend
 - **Express.js**: Web framework for Node.js
 - **MongoDB**: NoSQL database for storing user data and game reviews
-- **Mongoose**: ODM library for MongoDB and Node.js
-- **JWT**: For secure authentication
 - **dotenv**: For environment variable management
+- **Hosting:** Vercel (Back-end)
